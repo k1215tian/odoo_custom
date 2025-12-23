@@ -1,18 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        
-        <record id="$ModelName$_form_inherit" model="ir.ui.view">
-            <field name="name">$ProjectName$.$ModelName$.form</field>
-            <field name="model">$ProjectName$.$ModelName$</field>
-            <field name="inherit_id" ref="$ProjectName$.$ViewExternalID$"/>
-            <field name="priority" eval="8"/>
+
+        <record id="view_department_form_inherit" model="ir.ui.view">
+            <field name="name">hr.department.form.inherit</field>
+            <field name="model">hr.department</field>
+            <field name="inherit_id" ref="hr.view_department_form"/>
             <field name="arch" type="xml">
-                <xpath expr="//field[@name='$END$example_field']" position="replace">
-                    <field name="example_field2"/>
+                <xpath expr="//field[@name='name']" position="after">
+                    <h3><field name="code" placeholder="Contoh: IT, FIN, HRD..."/></h3>
                 </xpath>
-                <xpath expr="//field[@name='example_field']" position="attributes">
-                    <attribute name="invisible">True</attribute>
+                <xpath expr="//field[@name='manager_id']" position="after">
+                    <field name="email" placeholder="Department@mail.com"/>
+                </xpath>
+                <xpath expr="//field[@name='manager_id']" position="attributes">
+                    <attribute name="options">{'no_create': True, 'no_create_edit': True, 'no_open': True}</attribute>
+                </xpath>
+                <xpath expr="//field[@name='parent_id']" position="replace">
+                    <field name="parent_id" domain="[('id', '!=', id)]"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="view_department_tree_inherit" model="ir.ui.view">
+            <field name="name">hr.department.list.inherit</field>
+            <field name="model">hr.department</field>
+            <field name="inherit_id" ref="hr.view_department_tree"/> <field name="arch" type="xml">
+
+                <xpath expr="//field[@name='name']" position="before">
+                    <field name="code" string="Code"/>
+                </xpath>
+
+                <xpath expr="//field[@name='name']" position="after">
+                    <field name="email"/>
+                </xpath>
+
+            </field>
+        </record>
+
+        <record id="hr_department_view_kanban_inherit" model="ir.ui.view">
+            <field name="name">hr.department.kanban.inherit</field>
+            <field name="model">hr.department</field>
+            <field name="inherit_id" ref="hr.hr_department_view_kanban"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='name']" position="after">
+                    <field name="code"/>
+                    <field name="email"/>
+                </xpath>
+
+                <xpath expr="//field[@name='name']" position="before">
+                    <span t-if="record.code.raw_value" class="me-1">[<field name="code"/>]</span>
                 </xpath>
             </field>
         </record>
