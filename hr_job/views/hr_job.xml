@@ -14,12 +14,20 @@
                     <group>
                         <group>
                             <field name="email" placeholder="Job.position@mail.com"/>
-                            <field name="coach_id" context="{'default_department_id': department_id}" options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"/>
-                            <field name="extent" placeholder="Ext"/>
+                            <field name="coach_id"
+                                   context="{'default_department_id': department_id}"
+                                   options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                                   placeholder="Leader/Coach"/>
+                            <field name="extent"
+                                   placeholder="Ext"/>
                         </group>
                         <group>
-                            <field name="department_id" placeholder="Department" required="1" options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"/>
-                            <field name="color" widget="color_picker"/>
+                            <field name="department_id"
+                                   placeholder="Department"
+                                   required="1"
+                                   options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"/>
+                            <field name="color"
+                                   widget="color_picker"/>
                         </group>
                     </group>
                 </xpath>

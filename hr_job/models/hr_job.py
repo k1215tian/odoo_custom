@@ -41,7 +41,7 @@ class HRJob(models.Model):
             if record.extent:
                 if len(record.extent) > 5:
                     raise ValidationError(_("Code Etension tidak boleh lebih dari 5 karakter!"))
-                if not re.match(r'^[0-9]*$', record.code):
+                if not re.match(r'^[0-9]*$', record.extent):
                     raise ValidationError(_("Code Etension hanya boleh berisi karakter Numeric (angka)!"))
 
 
