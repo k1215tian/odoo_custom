@@ -68,6 +68,13 @@ class HRFamily(models.Model):
     is_emergency_contact = fields.Boolean(string="Is Emergency Contact", default=False)
     is_spouse = fields.Boolean(string="Is Spouse", default=False)
 
+    phone = fields.Char(string="Phone", default='-')
+    job_title = fields.Char(
+        string='Job Title',
+        groups="hr.group_hr_user",
+        tracking=True,
+        help="Pekerjaan atau profesi anggota keluarga"
+    )
     family_state = fields.Selection(
         FAMILY_SELECTION,
         string='Relationship',
@@ -142,6 +149,24 @@ class HRFamily(models.Model):
          'Identification No harus unik! Nomor ini sudah digunakan oleh record lain.')
     ]
 
+    @api.constrains('born_date')
+    def _check_born_date(self):
+        today = date.today()
+        for record in self:
+            if record.born_date and record.born_date > today:
+                raise ValidationError(_("Tanggal lahir tidak boleh lebih besar dari hari ini!"))
+
+    @api.onchange('family_state')
+    def _onchange_family_state_gender(self):
+        if self.family_state:
+            # Mapping hubungan ke gender tertentu
+            male_relations = ['father', 'son', 'brother']
+            female_relations = ['mother', 'daughter', 'sister']
+
+            if self.family_state in male_relations:
+                self.gender = 'male'
+            elif self.family_state in female_relations:
+                self.gender = 'female'
 
     @api.depends('born_date')
     def _compute_age(self):
@@ -193,3 +218,15 @@ class HRFamily(models.Model):
     def _onchange_is_emergency_contact(self):
         if self.is_emergency_contact:
             self.is_self = False
+            self.employee_id.emergency_contact = self.name
+            self.employee_id.emergency_phone = self.phone
+
+    @api.onchange('is_spouse')
+    def _onchange_is_spouse(self):
+        for rec in self:
+            if rec.is_spouse:
+                rec.employee_id.spouse_complete_name = rec.name
+                rec.employee_id.spouse_birtdate = rec.birth_date
+            else:
+                rec.employee_id.spouse_complete_name = False
+                rec.employee_id.spouse_birtdate = False
