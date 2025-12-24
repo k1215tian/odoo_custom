@@ -227,6 +227,7 @@ class HRFamily(models.Model):
             if rec.is_spouse:
                 rec.employee_id.spouse_complete_name = rec.name
                 rec.employee_id.spouse_birtdate = rec.birth_date
+                rec.is_self = False
             else:
                 rec.employee_id.spouse_complete_name = False
                 rec.employee_id.spouse_birtdate = False
