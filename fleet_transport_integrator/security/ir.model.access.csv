@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_fleet_transport_integrator_fleet_transport_integrator,fleet_transport_integrator.fleet_transport_integrator,model_fleet_transport_integrator_fleet_transport_integrator,base.group_user,1,1,1,1
