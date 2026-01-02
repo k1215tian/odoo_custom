@@ -1,0 +1,60 @@
+<odoo>
+  <data>
+    <!-- explicit list view definition -->
+<!--
+    <record model="ir.ui.view" id="picking_stock_weight.list">
+      <field name="name">picking_stock_weight list</field>
+      <field name="model">picking_stock_weight.picking_stock_weight</field>
+      <field name="arch" type="xml">
+        <list>
+          <field name="name"/>
+          <field name="value"/>
+          <field name="value2"/>
+        </list>
+      </field>
+    </record>
+-->
+
+    <!-- actions opening views on models -->
+<!--
+    <record model="ir.actions.act_window" id="picking_stock_weight.action_window">
+      <field name="name">picking_stock_weight window</field>
+      <field name="res_model">picking_stock_weight.picking_stock_weight</field>
+      <field name="view_mode">list,form</field>
+    </record>
+-->
+
+    <!-- server action to the one above -->
+<!--
+    <record model="ir.actions.server" id="picking_stock_weight.action_server">
+      <field name="name">picking_stock_weight server</field>
+      <field name="model_id" ref="model_picking_stock_weight_picking_stock_weight"/>
+      <field name="state">code</field>
+      <field name="code">
+        action = {
+          "type": "ir.actions.act_window",
+          "view_mode": "list,form",
+          "res_model": model._name,
+        }
+      </field>
+    </record>
+-->
+
+    <!-- Top menu item -->
+<!--
+    <menuitem name="picking_stock_weight" id="picking_stock_weight.menu_root"/>
+-->
+    <!-- menu categories -->
+<!--
+    <menuitem name="Menu 1" id="picking_stock_weight.menu_1" parent="picking_stock_weight.menu_root"/>
+    <menuitem name="Menu 2" id="picking_stock_weight.menu_2" parent="picking_stock_weight.menu_root"/>
+-->
+    <!-- actions -->
+<!--
+    <menuitem name="List" id="picking_stock_weight.menu_1_list" parent="picking_stock_weight.menu_1"
+              action="picking_stock_weight.action_window"/>
+    <menuitem name="Server to list" id="picking_stock_weight" parent="picking_stock_weight.menu_2"
+              action="picking_stock_weight.action_server"/>
+-->
+  </data>
+</odoo>
