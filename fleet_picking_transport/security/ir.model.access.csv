@@ -1,2 +1,3 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_fleet_picking_transport_fleet_picking_transport,fleet_picking_transport.fleet_picking_transport,model_fleet_picking_transport_fleet_picking_transport,base.group_user,1,1,1,1
+access_picking_route_manager,picking_route_manager,model_picking_route,,1,1,1,1

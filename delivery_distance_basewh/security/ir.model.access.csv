@@ -1,2 +1,3 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_delivery_distance_basewh_delivery_distance_basewh,delivery_distance_basewh.delivery_distance_basewh,model_delivery_distance_basewh_delivery_distance_basewh,base.group_user,1,1,1,1
+access_picking_route_manager,picking_route_manager,model_picking_route,,1,1,1,1access_trasnport_route_manager,trasnport_route_manager,model_trasnport_route,,1,1,1,1access_pertner_route_manager,pertner_route_manager,model_pertner_route,,1,1,1,1

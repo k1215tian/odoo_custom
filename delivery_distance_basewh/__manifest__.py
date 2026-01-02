@@ -25,6 +25,9 @@ Long description of module's purpose
         # 'security/ir.model.access.csv',
         'views/views.xml',
         'views/templates.xml',
+        'views/picking_route_views.xml',
+        'views/trasnport_route_views.xml',
+        'views/pertner_route_views.xml'
     ],
     # only loaded in demonstration mode
     'demo': [
