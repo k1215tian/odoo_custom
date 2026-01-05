@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+  <odoo>
+      
+    <!-- View hr_skills form -->
+    <record id="view_hr_skills_form" model="ir.ui.view">
+        <field name="name">view.hr_skills.form</field>
+        <field name="model">hr_skills</field>
+        <field name="inherit_id" ref=""/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='']">
+            </xpath>
+        </field>
+    </record>
+
+
+    <!-- View hr_skills tree -->
+    <record id="view_hr_skills_tree" model="ir.ui.view">
+        <field name="name">view.hr_skills.tree</field>
+        <field name="model">hr_skills</field>
+        <field name="inherit_id" ref=""/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='']">
+            </xpath>
+        </field>
+    </record>
+
+  </odoo>

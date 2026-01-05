@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- View hr.education View Tree -->
+    <record id="view_hr_education_tree" model="ir.ui.view">
+        <field name="name">view.hr.education.tree</field>
+        <field name="model">hr.education</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- View hr.education form -->
+    <record id="view_hr_education_form" model="ir.ui.view">
+        <field name="name">view.hr.education.form</field>
+        <field name="model">hr.education</field>
+        <field name="arch" type="xml">
+            <form string="Hr Education">
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" placeholder="Name..."/>
+                        </h1>
+                    </div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- View hr.education search -->
+    <record id="view_hr_education_search" model="ir.ui.view">
+        <field name="name">view.hr.education.search</field>
+        <field name="model">hr.education</field>
+        <field name="arch" type="xml">
+            <search>
+                <group expand="1" string="Group By">
+                    <filter string="Name" name="name" domain="[]" context="{'group_by':'name'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action hr.education -->
+    <record id="action_hr_education" model="ir.actions.act_window">
+        <field name="name">Hr Education</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">hr.education</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[]</field>
+        <field name="context">{}</field>
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
+                There is no examples click here to add new Hr Education.
+            </p>
+        </field>
+    </record>
+
+</odoo>

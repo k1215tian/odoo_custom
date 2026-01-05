@@ -30,7 +30,7 @@ EDUCATION_SELECTION = [
     ('master', 'Master'),
     ('doctoral', 'Doctorate'),
     ('professional', 'Professional Degree'),
-    ('under', 'Undergraduate'), # Usually used if degree is incomplete
+    ('under', 'Undergraduate'),  # Usually used if degree is incomplete
 ]
 
 MARITAL_STATUS = [
@@ -65,7 +65,8 @@ class HRFamily(models.Model):
     )
 
     is_self = fields.Boolean(string="Is Self", default=False)
-    is_emergency_contact = fields.Boolean(string="Is Emergency Contact", default=False)
+    is_emergency_contact = fields.Boolean(
+        string="Is Emergency Contact", default=False)
     is_spouse = fields.Boolean(string="Is Spouse", default=False)
 
     phone = fields.Char(string="Phone", default='-')
@@ -154,7 +155,8 @@ class HRFamily(models.Model):
         today = date.today()
         for record in self:
             if record.born_date and record.born_date > today:
-                raise ValidationError(_("Tanggal lahir tidak boleh lebih besar dari hari ini!"))
+                raise ValidationError(
+                    _("Tanggal lahir tidak boleh lebih besar dari hari ini!"))
 
     @api.onchange('family_state')
     def _onchange_family_state_gender(self):
@@ -196,16 +198,19 @@ class HRFamily(models.Model):
                     ('id', '!=', record.id)
                 ])
                 if existing:
-                    raise ValidationError(_("Each employee can only have one 'Self' family record."))
+                    raise ValidationError(
+                        _("Each employee can only have one 'Self' family record."))
 
     @api.constrains('is_self', 'is_spouse', 'is_emergency_contact')
     def _check_boolean_exclusivity(self):
         for record in self:
             if record.is_self:
                 if record.is_spouse:
-                    raise ValidationError(_("A record cannot be both 'Self' and 'Spouse'."))
+                    raise ValidationError(
+                        _("A record cannot be both 'Self' and 'Spouse'."))
                 if record.is_emergency_contact:
-                    raise ValidationError(_("You cannot set 'Self' as an Emergency Contact."))
+                    raise ValidationError(
+                        _("You cannot set 'Self' as an Emergency Contact."))
 
     # UI Logic: Automatically uncheck others when one is selected
     @api.onchange('is_self')
@@ -226,8 +231,8 @@ class HRFamily(models.Model):
         for rec in self:
             if rec.is_spouse:
                 rec.employee_id.spouse_complete_name = rec.name
-                rec.employee_id.spouse_birtdate = rec.birth_date
+                rec.employee_id.spouse_birthdate = rec.birth_date
                 rec.is_self = False
             else:
                 rec.employee_id.spouse_complete_name = False
-                rec.employee_id.spouse_birtdate = False
+                rec.employee_id.spouse_birthdate = False

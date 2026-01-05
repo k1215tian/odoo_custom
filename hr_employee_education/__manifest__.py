@@ -18,17 +18,19 @@ Long description of module's purpose
     'version': '0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['base'],
+    'depends': ['base', 'hr', 'hr_skills'],
 
     # always loaded
-    'data': [
-        # 'security/ir.model.access.csv',
-        'views/views.xml',
-        'views/templates.xml',
+    "data": [
+        "security/ir.model.access.csvviews/hr_certification_views.xml",
+        "views/hr_education_views.xml",
+        "views/hr_employee_views.xml",
+        "views/hr_skills_views.xml",
+        "views/templates.xml",
+        "views/views.xml"
     ],
     # only loaded in demonstration mode
     'demo': [
         'demo/demo.xml',
     ],
 }
-

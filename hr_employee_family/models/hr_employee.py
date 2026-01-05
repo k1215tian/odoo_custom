@@ -5,7 +5,7 @@ class HREmployee(models.Model):
     _inherit = 'hr.employee'
 
     family_ids = fields.One2many('hr.family','employee_id',string='Family')
-    is_married = fields.Boolean('Married State', default=False,groups="hr.group_hr_user", tracking=True)
+    is_married = fields.Boolean('Married State', default=False, groups="hr.group_hr_user", tracking=True)
     date_marriage = fields.Date(
         string='Marriage Date',
         groups="hr.group_hr_user",
