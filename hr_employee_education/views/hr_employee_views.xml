@@ -1,15 +1,100 @@
 <?xml version="1.0" encoding="utf-8"?>
-  <odoo>
-      
-    <!-- View hr_employee_views form -->
-    <record id="view_hr_employee_views_form" model="ir.ui.view">
-        <field name="name">view.hr_employee_views.form</field>
-        <field name="model">hr_employee_views</field>
-        <field name="inherit_id" ref=""/>
+<odoo>
+    <record id="view_employee_form_family_inherit" model="ir.ui.view">
+        <field name="name">hr.employee.form.family.inherit</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//field[@name='']">
+            <xpath expr="//page[@name='hr_settings']" position="before">
+                <page string="Family" groups="hr.group_hr_user">
+                    <field name="education_ids" mode="list,kanban">
+                        <list editable="bottom">
+                            <field name="is_self" widget="boolean_toggle"/>
+                            <field name="name"/>
+                            <field name="family_state" required="name"/>
+                            <field name="gender" required="name"/>
+                            <field name="identification_id" required="name"/>
+                            <field name="phone" string="Phone Contact"/>
+                            <field name="born_date" required="name"/>
+                            <field name="last_education" required="name"/>
+                            <field name="job_title" required="name"/> <field name="is_emergency_contact" widget="boolean_toggle"/>
+                        </list>
+                        <form>
+                            <sheet>
+                                <group>
+                                    <group string="Personal Info Family">
+                                        <field name="name"/>
+                                        <field name="family_state" required="1"/>
+                                        <field name="gender" required="1"/>
+                                        <field name="marital" required="1"/>
+                                        <field name="identification_id" required="1"/>
+                                        <field name="job_title" placeholder="e.g. Software Engineer"/>
+                                    </group>
+                                    <group string="Birth &amp; Education">
+                                        <label for="born_date"/>
+                                        <div class="o_row">
+                                            <field name="born_date" required="1"/>
+                                            <span class="oe_inline"> - Age: </span>
+                                            <field name="age" readonly="1" class="oe_inline"/>
+                                        </div>
+                                        <field name="last_education" required="1"/>
+                                        <field name="school_name"/>
+                                        <field name="phone"/>
+                                    </group>
+                                    <group string="Settings">
+                                        <field name="is_self"/>
+                                        <field name="is_spouse"/>
+                                        <field name="is_emergency_contact"/>
+                                    </group>
+                                </group>
+                            </sheet>
+                        </form>
+                    </field>
+                    <field name="certification_ids" mode="list,kanban">
+                        <list editable="bottom">
+                            <field name="is_self" widget="boolean_toggle"/>
+                            <field name="name"/>
+                            <field name="family_state" required="name"/>
+                            <field name="gender" required="name"/>
+                            <field name="identification_id" required="name"/>
+                            <field name="phone" string="Phone Contact"/>
+                            <field name="born_date" required="name"/>
+                            <field name="last_education" required="name"/>
+                            <field name="job_title" required="name"/> <field name="is_emergency_contact" widget="boolean_toggle"/>
+                        </list>
+                        <form>
+                            <sheet>
+                                <group>
+                                    <group string="Personal Info Family">
+                                        <field name="name"/>
+                                        <field name="family_state" required="1"/>
+                                        <field name="gender" required="1"/>
+                                        <field name="marital" required="1"/>
+                                        <field name="identification_id" required="1"/>
+                                        <field name="job_title" placeholder="e.g. Software Engineer"/>
+                                    </group>
+                                    <group string="Birth &amp; Education">
+                                        <label for="born_date"/>
+                                        <div class="o_row">
+                                            <field name="born_date" required="1"/>
+                                            <span class="oe_inline"> - Age: </span>
+                                            <field name="age" readonly="1" class="oe_inline"/>
+                                        </div>
+                                        <field name="last_education" required="1"/>
+                                        <field name="school_name"/>
+                                        <field name="phone"/>
+                                    </group>
+                                    <group string="Settings">
+                                        <field name="is_self"/>
+                                        <field name="is_spouse"/>
+                                        <field name="is_emergency_contact"/>
+                                    </group>
+                                </group>
+                            </sheet>
+                        </form>
+                    </field>
+                </page>
             </xpath>
         </field>
     </record>
-
-  </odoo>
+</odoo>
