@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Sequence -->
+        <record id="seq_ir_seq_termination" model="ir.sequence">
+            <field name="name">Ir seq termination Sequence</field>
+            <field name="code">ir.seq.termination</field>
+            <field name="prefix">IR_/%(year)s/</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+    </data>
+</odoo>

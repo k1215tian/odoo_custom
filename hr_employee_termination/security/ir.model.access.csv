@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink\
+access_wiz_hr_paklaring_manager,wiz_hr_paklaring_manager,model_wiz_hr_paklaring,,1,1,1,1
+access_wis_employee_child_ids_manager,wis_employee_child_ids_manager,model_wis_employee_child_ids,,1,1,1,1
+access_hr_config_notification_manager,hr_config_notification_manager,model_hr_config_notification,,1,1,1,1
+access_hr_employee_termination_manager,hr_employee_termination_manager,model_hr_employee_termination,,1,1,1,1
