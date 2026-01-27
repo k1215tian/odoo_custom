@@ -26,17 +26,18 @@ Long description of module's purpose
 
     # always loaded
     "data": [
+        # "security/ir.model.access.csv",
         "views/hr_config_notification_views.xml",
         "views/hr_employee_termination_views.xml",
+        "views/hr_termination_asset_views.xml",
+        "views/hr_termination_validator_views.xml",
         "views/templates.xml",
         "views/views.xml",
         "wizards/wis_employee_child_ids.xml",
         "wizards/wiz_hr_paklaring.xml",
-        "#security/ir.model.access.csv"
     ],
     # only loaded in demonstration mode
     'demo': [
         'demo/demo.xml',
     ],
 }
-
