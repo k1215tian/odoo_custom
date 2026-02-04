@@ -21,15 +21,20 @@ Long description of module's purpose
     'depends': ['base', 'account'],
 
     # always loaded
-    'data': [
-        # 'security/ir.model.access.csv',
-        'views/views.xml',
-        'views/templates.xml',
-        'views/account_asset_profile_views.xml',
-        'views/account_asset_views.xml',
-        'views/account_asset_line_views.xml',
-        'views/account_asset_group_views.xml',
-        'views/account_asset_recompute_trigger_views.xml'
+    "data": [
+        "data/ir_cron_cron.xml",
+        "views/account_asset_group_views.xml",
+        "views/account_asset_line_views.xml",
+        "views/account_asset_profile_views.xml",
+        "views/account_asset_recompute_trigger_views.xml",
+        "views/account_asset_views.xml",
+        "views/templates.xml",
+        "views/views.xml",
+        "reports/account_asset_report_report.xml",
+        "wizards/account_asset_compute.xml",
+        "wizards/account_asset_remove.xml",
+        "wizards/asset_modify.xml",
+        "#security/ir.model.access.csv"
     ],
     # only loaded in demonstration mode
     'demo': [

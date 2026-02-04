@@ -12,6 +12,7 @@ class AccountAssetProfile(models.Model):
     _inherit = ["analytic.mixin"]
     _description = "Asset Profile"
     _order = "name"
+    _check_company_auto = True
 
     # =====================================================
     # BASIC INFORMATION
@@ -25,6 +26,13 @@ class AccountAssetProfile(models.Model):
             "Nama template profil aset (contoh: 'Elektronik', 'Kendaraan'). "
             "Digunakan untuk pengisian otomatis saat membuat aset baru."
         )
+    )
+
+    code = fields.Char(
+        string="Asset Profile Code",
+        required=True,
+        index=True,
+        help="Kode unik profil aset untuk memudahkan pencarian (contoh: AP-ELEC, AP-VEH)."
     )
 
     color = fields.Integer(string='Color Index')
@@ -81,14 +89,11 @@ class AccountAssetProfile(models.Model):
         )
     )
 
+    is_depreciable = fields.Boolean(default=True)
+
     open_asset = fields.Boolean(
         string='Skip Draft State',
         help="Jika aktif, aset langsung berstatus Running tanpa konfirmasi manual."
-    )
-
-    group_entries = fields.Boolean(
-        string='Group Journal Entries',
-        help="Gabungkan jurnal depresiasi dalam periode yang sama menjadi satu entry."
     )
 
     # =====================================================
@@ -139,10 +144,10 @@ class AccountAssetProfile(models.Model):
     # =====================================================
 
     method = fields.Selection(
-        [
-            ('linear', 'Linear'),
-            ('degressive', 'Degressive'),
-        ],
+        [('linear', 'Linear'),
+         ('degressive', 'Degressive'),
+         ('double_declining', 'Double Declining'),
+         ('custom', 'Custom Formula')],
         string='Computation Method',
         required=True,
         default='linear',
@@ -150,6 +155,11 @@ class AccountAssetProfile(models.Model):
             "Linear: Beban tetap setiap periode.\n"
             "Degressive: Beban menurun berdasarkan faktor pengali."
         )
+    )
+
+    custom_formula = fields.Char(
+        string="Custom Formula",
+        help="Variables: book_value, remaining_amount, period_factor"
     )
 
     method_time = fields.Selection(
@@ -194,12 +204,20 @@ class AccountAssetProfile(models.Model):
         string='Prorata Temporis',
         help="Hitung depresiasi periode pertama secara proporsional berdasarkan tanggal mulai."
     )
-    
+
     group_entries = fields.Boolean(
-        string="Group Journal Entries", 
+        string="Group Journal Entries",
         default=False,
         help="Jika dicentang, penyusutan untuk semua aset dalam kategori ini akan digabung menjadi satu jurnal per bulan."
     )
+
+    _sql_constraints = [
+        (
+            'asset_profile_code_company_uniq',
+            'unique(code, company_id)',
+            'Asset Profile Code harus unik per Company.'
+        ),
+    ]
 
     # =====================================================
     # CONSTRAINTS & ONCHANGE
@@ -217,16 +235,27 @@ class AccountAssetProfile(models.Model):
         """Validasi konfigurasi untuk mencegah error perhitungan depresiasi."""
         for rec in self:
             if rec.method == 'degressive' and not (0 < rec.method_progress_factor < 1):
-                raise ValidationError(_("Degressive factor harus di antara 0 dan 1."))
+                raise ValidationError(
+                    _("Degressive factor harus di antara 0 dan 1."))
 
+            if rec.method == 'custom' and not rec.custom_formula:
+                raise ValidationError(_("Custom Formula wajib diisi."))
             if rec.method_time == 'number' and rec.method_number <= 0:
                 raise ValidationError(_("Jumlah depresiasi harus minimal 1."))
 
             if rec.method_period <= 0:
-                raise ValidationError(_("Panjang periode harus minimal 1 bulan."))
+                raise ValidationError(
+                    _("Panjang periode harus minimal 1 bulan."))
 
             if rec.method_time == 'end' and not rec.method_end:
-                raise ValidationError(_("Ending Date wajib diisi jika Time Method = Ending Date."))
+                raise ValidationError(
+                    _("Ending Date wajib diisi jika Time Method = Ending Date."))
+
+    @api.onchange('method')
+    def _onchange_method(self):
+        if self.method != 'custom':
+            self.custom_formula = False
+
 
     @api.onchange('account_asset_id', 'type')
     def _onchange_account_asset_id(self):
@@ -237,7 +266,12 @@ class AccountAssetProfile(models.Model):
             return
 
         if self.type == 'purchase' and not self.account_depreciation_id:
-            self.account_depreciation_id = self.account_asset_id
+            return {
+                'warning': {
+                    'title': _('Warning'),
+                    'message': _('Silakan pilih akun akumulasi depresiasi secara manual.')
+                }
+            }
 
         if self.type == 'sale' and not self.account_depreciation_expense_id:
             self.account_depreciation_expense_id = self.account_asset_id
@@ -264,19 +298,19 @@ class AccountAssetProfile(models.Model):
                 )
 
         return profiles
-    
+
     def write(self, vals):
         # Simpan akun lama sebelum update untuk pembersihan
         old_accounts = {rec.id: rec.account_asset_id for rec in self}
         res = super(AccountAssetProfile, self).write(vals)
-        
+
         if 'account_asset_id' in vals:
             for rec in self:
                 # 1. Lepas link dari akun lama
                 old_acc = old_accounts.get(rec.id)
                 if old_acc and old_acc.id != rec.account_asset_id.id:
                     old_acc.asset_profile_id = False
-                
+
                 # 2. Pasang link ke akun baru
                 if rec.account_asset_id:
                     rec.account_asset_id.asset_profile_id = rec.id
@@ -288,3 +322,11 @@ class AccountAssetProfile(models.Model):
             if rec.account_asset_id:
                 rec.account_asset_id.asset_profile_id = False
         return super(AccountAssetProfile, self).unlink()
+
+    @api.onchange('method_time')
+    def _onchange_method_time(self):
+        """ Reset nilai jika user mengganti metode waktu """
+        if self.method_time == 'number':
+            self.method_end = False
+        else:
+            self.method_number = 0

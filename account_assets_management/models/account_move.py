@@ -86,44 +86,50 @@ class AccountMove(models.Model):
             "partner_id": aml.partner_id.id,
             "date_start": self.date,
         }
-
+    
     def action_post(self):
+        """ 
+        Override action_post untuk otomatis membuat record aset.
+        Setiap baris invoice yang memiliki Profil Aset akan menjadi satu record Aset.
+        """
         ret_val = super().action_post()
+        
         for move in self:
-            for aml in move.line_ids.filtered(
-                lambda line: line.asset_profile_id and not line.tax_line_id
-            ):
+            created_assets = []
+            
+            # Filter baris yang punya profil aset dan bukan baris pajak
+            asset_lines = move.line_ids.filtered(
+                lambda l: l.asset_profile_id and not l.tax_line_id and not l.asset_id
+            )
+            
+            for aml in asset_lines:
                 if not aml.name:
-                    raise UserError(
-                        self.env._(
-                            "Asset name must be set in the label of the line.")
-                    )
-                if aml.asset_id:
-                    continue
+                    raise UserError(_("Nama aset harus diisi pada label baris invoice."))
+
+                # Memanggil fungsi helper untuk menyiapkan data
                 vals = move._prepare_asset_vals(aml)
-                asset = (
-                    self.env["account.asset"]
-                    .with_company(move.company_id)
-                    .with_context(create_asset_from_move_line=True, move_id=move.id)
-                    .create(vals)
-                )
+                
+                # Buat record aset
+                asset = self.env["account.asset"].with_company(move.company_id).with_context(
+                    create_asset_from_move_line=True, 
+                    move_id=move.id
+                ).create(vals)
+                
+                # Copy analytic distribution
                 asset.analytic_distribution = aml.analytic_distribution
-                aml.with_context(
-                    allow_asset=True, allow_asset_removal=True
-                ).asset_id = asset.id
-            new_name_get = []
-            for asset in move.line_ids.filtered("asset_profile_id").asset_id:
-                new_name_get = [asset.id, asset.display_name]
-            if new_name_get:
-                message = self.env._(
-                    "This invoice created the asset(s): %s",
-                    Markup(
-                        """<a href=# data-oe-model=account.asset"""
-                        f""" data-oe-id={new_name_get[0]}"""
-                        f""">{new_name_get[1]}</a>"""
-                    ),
+                
+                # Hubungkan balik baris jurnal ke aset yang baru dibuat
+                aml.with_context(allow_asset=True).write({'asset_id': asset.id})
+                created_assets.append(asset)
+
+            # Kirim pesan ke Chatter jika ada aset yang dibuat
+            for asset in created_assets:
+                message = _(
+                    "Invoice ini telah membuat aset: <a href=# data-oe-model=account.asset data-oe-id=%s>%s</a>",
+                    asset.id, asset.display_name
                 )
                 move.message_post(body=message)
+                
         return ret_val
 
     def button_draft(self):
@@ -169,6 +175,55 @@ class AccountMove(models.Model):
         else:
             action_dict = {"type": "ir.actions.act_window_close"}
         return action_dict
+    
+    def _create_assets_from_move_lines(self):
+        """ 
+        Fungsi helper untuk otomatis membuat record Asset dari baris Journal Entry/Invoice.
+        Logika ini dijalankan saat Invoice di-post.
+        """
+        asset_obj = self.env['account.asset']
+        for line in self.line_ids.filtered(lambda l: l.asset_profile_id and not l.asset_id):
+            # 1. Menyiapkan nilai awal aset berdasarkan baris jurnal (move line)
+            # Kita mengambil setting default dari Profile yang dipilih
+            vals = {
+                'name': line.name or line.product_id.name or _("Asset from %s") % self.name,
+                'code': self.name, # Menggunakan nomor invoice sebagai referensi awal
+                'profile_id': line.asset_profile_id.id,
+                'purchase_value': abs(line.balance), # Nilai perolehan (debet)
+                'salvage_value': 0.0,
+                'date_start': self.date, # Tanggal mulai penyusutan biasanya sama dengan tanggal invoice
+                'company_id': self.company_id.id,
+                'currency_id': self.currency_id.id,
+                'partner_id': self.partner_id.id,
+                # Link balik ke move line agar kita tahu aset ini datang dari mana
+                # Pastikan field 'invoice_line_id' atau sejenisnya ada di model account.asset Anda
+            }
+
+            # 2. Sinkronisasi parameter penyusutan dari Profile ke Aset
+            # Ini memastikan field seperti method_number (usia) tercopy ke record aset
+            profile = line.asset_profile_id
+            vals.update({
+                'method': profile.method,
+                'method_number': profile.method_number,
+                'method_period': profile.method_period,
+                'method_time': profile.method_time,
+                'journal_id': profile.journal_id.id,
+                'account_asset_id': profile.account_asset_id.id,
+                'account_depreciation_id': profile.account_depreciation_id.id,
+                'account_depreciation_expense_id': profile.account_depreciation_expense_id.id,
+            })
+
+            # 3. Create record aset
+            asset = asset_obj.create(vals)
+            
+            # 4. Update link di move line agar tidak terproses dua kali
+            line.write({'asset_id': asset.id})
+
+            # 5. Log ke Chatter Invoice bahwa aset telah dibuat
+            msg = _("Asset Created: <a href=# data-oe-model=account.asset data-oe-id=%d>%s</a>") % (asset.id, asset.name)
+            self.message_post(body=msg)
+
+        return True
 
 
 class AccountMoveLine(models.Model):

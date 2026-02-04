@@ -36,50 +36,39 @@ class AccountAssetLine(models.Model):
     # METHODS
     # -------------------------------
     def unlink(self):
+        """ Mencegah penghapusan jika baris sudah memiliki Journal Entry. """
         for line in self:
             if line.move_id:
                 raise UserError(
-                    _("Baris penyusutan '%s' tidak dapat dihapus karena sudah diposting." % line.name))
+                    _("Baris '%s' tidak bisa dihapus karena sudah terposting ke jurnal.") % line.name)
         return super().unlink()
 
     def create_move(self):
+        """ 
+        Membuat Journal Entry individual dengan efisiensi database yang ditingkatkan.
+        """
+        # Optimasi 1: Gunakan sudo() jika proses depresiasi otomatis dilakukan oleh sistem/cron
+        # Optimasi 2: Pastikan context allow_asset terbawa hingga proses posting
         for line in self:
-            if line.move_id:
+            if line.move_id or line.amount <= 0:
                 continue
 
             asset = line.asset_id
             profile = asset.profile_id
 
-            # Validasi akun sebelum membuat move
             if not (profile.account_depreciation_id and profile.account_depreciation_expense_id):
                 raise UserError(
                     _("Akun depresiasi pada profil %s belum diset.") % profile.name)
 
-            move_vals = {
-                'date': line.line_date,
-                'journal_id': profile.journal_id.id,
-                'ref': f"{asset.code or asset.name} - {line.name}",
-                'move_type': 'entry',
-                'line_ids': [
-                    (0, 0, {
-                        'name': line.name,
-                        'account_id': profile.account_depreciation_expense_id.id,
-                        'debit': line.amount,
-                        'credit': 0.0,
-                        'analytic_distribution': asset.analytic_distribution,
-                    }),
-                    (0, 0, {
-                        'name': line.name,
-                        'account_id': profile.account_depreciation_id.id,
-                        'debit': 0.0,
-                        'credit': line.amount,
-                        'analytic_distribution': asset.analytic_distribution,
-                    }),
-                ]
-            }
-            # Gunakan sudo() jika user biasa tidak punya akses buat journal entry
-            move = self.env['account.move'].create(move_vals)
+            # Siapkan vals
+            move_vals = line._prepare_move_vals()
+
+            # Optimasi 3: Membungkus seluruh operasi dalam context manager yang sama
+            # agar method override di account.move (seperti constrains) tidak mencekal.
+            move = self.sudo().env['account.move'].with_context(
+                allow_asset=True).create(move_vals)
             move.action_post()
+
             line.write({'move_id': move.id})
         return True
 
@@ -129,3 +118,38 @@ class AccountAssetLine(models.Model):
             lines.write({'move_id': move.id})
 
         return True
+
+    def _prepare_move_vals(self):
+        """ 
+        Menyiapkan dictionary untuk pembuatan Journal Entry untuk asset ini.
+
+        Mengembalikan struktur dict yang siap digunakan untuk membuat jurnal,
+        termasuk informasi tanggal, jurnal, referensi, dan baris debit/credit. 
+        """
+        self.ensure_one()
+        asset = self.asset_id
+        profile = asset.profile_id
+
+        return {
+            'date': self.line_date,
+            'journal_id': profile.journal_id.id,
+            'ref': f"{asset.code or asset.name} - {self.name}",
+            'move_type': 'entry',
+            'asset_id': asset.id,  # Link balik untuk audit trail; juga bisa dipakai modul lain
+            'line_ids': [
+                (0, 0, {
+                    'name': self.name,
+                    'account_id': profile.account_depreciation_expense_id.id,
+                    'debit': self.amount,
+                    'credit': 0.0,
+                    'analytic_distribution': asset.analytic_distribution,
+                }),
+                (0, 0, {
+                    'name': self.name,
+                    'account_id': profile.account_depreciation_id.id,
+                    'debit': 0.0,
+                    'credit': self.amount,
+                    'analytic_distribution': asset.analytic_distribution,
+                }),
+            ]
+        }

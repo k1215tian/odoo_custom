@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- View account.asset.compute form -->
+    <record id="view_account_asset_compute_form" model="ir.ui.view">
+        <field name="name">view.account.asset.compute.form</field>
+        <field name="model">account.asset.compute</field>
+        <field name="arch" type="xml">
+            <form string="Account Asset Compute">
+                <div class="oe_title">
+                    <label for="name"/>
+                    <h1>
+                        <field name="name" placeholder="Name..."/>
+                    </h1>
+                </div>
+                <footer>
+                    <button name="add" type="object" string="Add" class="oe_highlight"/>
+                    <button special="cancel" string="Cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action account.asset.compute -->
+    <record id="action_account_asset_compute" model="ir.actions.act_window">
+        <field name="name">Account Asset Compute</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">account.asset.compute</field>
+        <field name="view_mode">form</field>
+        <field name="binding_model_id" ref="addon.model_model_name"/>
+        <field name="target">new</field>
+    </record>
+
+</odoo>
