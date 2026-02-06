@@ -1,4 +1,3 @@
-[FIX] HR: Modify employee termination module structure
 
 # -*- coding: utf-8 -*-
 # from odoo import http
