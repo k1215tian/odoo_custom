@@ -7,11 +7,19 @@ class HRJob(models.Model):
     _inherit = 'hr.job'
 
     color = fields.Integer('Color Index')
-    code = fields.Char('Job Position Code', size=5)
-    complete_name = fields.Char('Complete Name', compute='_compute_complete_name', recursive=True, store=True)
-    department_id = fields.Many2one('hr.department', string='Department', check_company=True)
-    coach_id = fields.Many2one('hr.employee', string='Leader', tracking=True, domain="['|', ('company_id', '=', False), ('company_id', 'in', allowed_company_ids), ('department_id', '=', department_id)]")
-    member_ids = fields.One2many('hr.employee', 'department_id', string='Members', readonly=True, domain="['|', ('company_id', '=', False), ('company_id', 'in', allowed_company_ids), ('department_id', '=', department_id)]")
+    code = fields.Char('Job Position Code', 
+        size=5)
+    complete_name = fields.Char('Complete Name', 
+        compute='_compute_complete_name', 
+        recursive=True, store=True)
+    department_id = fields.Many2one('hr.department', 
+        string='Department', check_company=True)
+    coach_id = fields.Many2one('hr.employee', 
+        string='Leader', tracking=True, 
+        domain="['|', ('company_id', '=', False), ('company_id', 'in', allowed_company_ids), ('department_id', '=', department_id)]")
+    member_ids = fields.One2many('hr.employee', 'department_id', 
+        string='Members', readonly=True, 
+        domain="['|', ('company_id', '=', False), ('company_id', 'in', allowed_company_ids), ('department_id', '=', department_id)]")
     email = fields.Char(string="Email")
     extent = fields.Char(string="Ext", size=5)
     skills_ids = fields.Many2many('hr.skill', 'hr_skill_job_rel', 'job_id', 'skill_id', string="Skills")

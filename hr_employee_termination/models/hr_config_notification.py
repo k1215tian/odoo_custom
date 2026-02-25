@@ -29,8 +29,12 @@ class HrConfigNotification(models.Model):
     )
     days_notif = fields.Integer(
         string='Length of the notification contract',
-        store=True, change_default=True, default=1, required=True)
-    interval_notif = fields.Selection([('days', 'Days'), ('weeks', 'Weeks'), ('months', 'Months')],
+        store=True, change_default=True, 
+        default=1, required=True)
+    interval_notif = fields.Selection([
+        ('days', 'Days'), 
+        ('weeks', 'Weeks'), 
+        ('months', 'Months')],
         string='Interval of the notification contract', 
         default='days', required=True)
     calculate_notif = fields.Integer(

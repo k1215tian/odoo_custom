@@ -6,7 +6,9 @@ from odoo.exceptions import UserError, ValidationError
 class HRDepartment(models.Model):
     _inherit = 'hr.department'
 
-    code = fields.Char('Department Code',size=5)
+    code = fields.Char('Department Code',
+        size=5)
+    color = fields.Integer('Color Index')
     email = fields.Char(string="Email")
 
     @api.constrains('email')
